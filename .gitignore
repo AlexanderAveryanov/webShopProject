@@ -1,0 +1,6 @@
+.idea/
+*.iml
+target/
+Thumbs.db
+desktop.ini
+*.log
