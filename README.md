@@ -20,98 +20,23 @@
 
 ### Backend
 
-| Технология | Версия | Назначение |
-|------------|--------|------------|
-| **Java** | 21 (LTS) | Основной язык, Virtual Threads |
-| **Spring Boot** | 3.4.x | Фреймворк |
-| **Spring Security** | 6.x | Аутентификация и авторизация (JWT) |
-| **Spring Data JPA** | 3.x | Работа с БД |
-| **Spring Cache** | 3.x | Кеширование |
-| **Spring Cloud Gateway** | 4.x | API Gateway |
-| **Spring Cloud Netflix** | 4.x | Service Discovery (Eureka) |
-| **Resilience4j** | 2.x | Circuit Breaker, Retry, Rate Limiter |
-| **PostgreSQL** | 17 | Основная база данных |
-| **Redis** | 7.4+ | Кеш + сессии + rate limiting |
-| **Apache Kafka** | 3.8+ | Асинхронные события |
-| **Flyway** | 10.x | Миграции БД |
-| **Maven** | 3.9+ | Сборка проекта |
-| **Lombok** | 1.18.x | Уменьшение бойлерплейта |
-| **MapStruct** | 1.6.x | Маппинг DTO-Entity |
-
-### Инфраструктура
-
-| Технология | Версия | Назначение |
-|------------|--------|------------|
-| **Docker** | latest | Контейнеризация |
-| **Docker Compose** | latest | Оркестрация сервисов |
-| **Testcontainers** | 1.20+ | Интеграционные тесты |
-| **JUnit 5** | 5.10+ | Unit-тестирование |
-| **Mockito** | 5.x | Мокирование |
-| **GitHub Actions** | latest | CI/CD |
-
-### Мониторинг и Observability
-
-| Технология | Версия | Назначение |
-|------------|--------|------------|
-| **Spring Actuator** | 3.x | /health, /metrics |
-| **Micrometer** | 1.13+ | Метрики |
-| **Prometheus** | 2.54+ | Сбор метрик |
-| **Grafana** | 11.x | Визуализация |
-| **OpenTelemetry** | 1.40+ | Distributed tracing |
-| **Zipkin** | 3.x | Визуализация трейсов |
-
-### Frontend
-
-| Технология | Версия | Назначение |
-|------------|--------|------------|
-| **React** | 19 | UI библиотека |
-| **TypeScript** | 5.x | Типизация |
-| **Vite** | 6.x | Сборка |
-| **Tailwind CSS** | 4.x | Стили |
-
----
-
-## Архитектура системы
-
-# webShopProject
-
-Интернет-магазин одежды.
-
----
-
-## О проекте
-
-Полноценный сайт с:
-- Каталогом товаров (одежда: категории, размеры, цвета, остатки)
-- Корзиной
-- Оформлением заказов
-- Симуляцией оплаты
-- Email-уведомлениями
-- Админ-панелью
-
----
-
-## Технологический стек (2026)
-
-### Backend
-
-| Технология | Версия | Назначение |
-|------------|--------|------------|
-| **Java** | 21 (LTS) | Основной язык, Virtual Threads |
-| **Spring Boot** | 3.4.x | Фреймворк |
-| **Spring Security** | 6.x | Аутентификация и авторизация (JWT) |
-| **Spring Data JPA** | 3.x | Работа с БД |
-| **Spring Cache** | 3.x | Кеширование |
-| **Spring Cloud Gateway** | 4.x | API Gateway |
-| **Spring Cloud Netflix** | 4.x | Service Discovery (Eureka) |
-| **Resilience4j** | 2.x | Circuit Breaker, Retry, Rate Limiter |
-| **PostgreSQL** | 17 | Основная база данных (пользователи, товары, заказы, уведомления) |
-| **Redis** | 7.4+ | Кеш + корзина + rate limiting |
-| **Apache Kafka** | 3.8+ | Асинхронные события |
-| **Flyway** | 10.x | Миграции БД |
-| **Maven** | 3.9+ | Сборка проекта |
-| **Lombok** | 1.18.x | Уменьшение бойлерплейта |
-| **MapStruct** | 1.6.x | Маппинг DTO-Entity |
+| Технология | Версия   | Назначение |
+|------------|----------|------------|
+| **Java** | 25 (LTS) | Основной язык, Virtual Threads |
+| **Spring Boot** | 4.0.x    | Фреймворк |
+| **Spring Security** | 6.x      | Аутентификация и авторизация (JWT) |
+| **Spring Data JPA** | 3.x      | Работа с БД |
+| **Spring Cache** | 3.x      | Кеширование |
+| **Spring Cloud Gateway** | 4.x      | API Gateway |
+| **Spring Cloud Netflix** | 4.x      | Service Discovery (Eureka) |
+| **Resilience4j** | 2.x      | Circuit Breaker, Retry, Rate Limiter |
+| **PostgreSQL** | 17       | Основная база данных (пользователи, товары, заказы, уведомления) |
+| **Redis** | 7.4+     | Кеш + корзина + rate limiting |
+| **Apache Kafka** | 3.8+     | Асинхронные события |
+| **Flyway** | 10.x     | Миграции БД |
+| **Maven** | 3.9+     | Сборка проекта |
+| **Lombok** | 1.18.x   | Уменьшение бойлерплейта |
+| **MapStruct** | 1.6.x    | Маппинг DTO-Entity |
 
 ### Инфраструктура
 
