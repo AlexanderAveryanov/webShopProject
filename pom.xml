@@ -4,17 +4,39 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.shop</groupId>
-    <artifactId>webShopProject</artifactId>
+    <!--
+        Maven POM (Project Object Model) — основной файл конфигурации проекта.
+        Определяет структуру, зависимости, плагины и настройки сборки.
+    -->
+    <modelVersion>4.0.0</modelVersion> <!-- Версия POM-модели. Используем всегда 4.0.0. для совместимости-->
+
+    <!-- === Координаты проекта (GAV — Group, Artifact, Version) === -->
+    <!-- Уникально идентифицируют проект в Maven-репозитории -->
+    <groupId>com.shop</groupId> <!-- Обратный домен организации или название компании/подразделения -->
+    <artifactId>webShopProject</artifactId> <!-- Уникальное имя артефакта (JAR/WAR файла, который будет собран) -->
     <version>1.0-SNAPSHOT</version>
+    <!--
+        Тип упаковки:
+        - pom    — родительский проект (только для управления модулями/зависимостями)
+        - jar    — обычная Java-библиотека (стандарт для микросервисов)
+        - war    — для развёртывания на сервере приложений (Tomcat, Jetty)
+        - maven-plugin — плагин для Maven
+    -->
     <packaging>pom</packaging>
+
+    <!-- Вынос версии и настройки в переменные для переиспользования -->
     <properties>
-        <java.version>25</java.version>
-        <spring-boot.version>4.0.6</spring-boot.version>
-        <maven.compiler.source>25</maven.compiler.source>
-        <maven.compiler.target>25</maven.compiler.target>
+        <java.version>25</java.version> <!-- Версия JDK для компиляции и запуска -->
+        <spring-boot.version>4.0.6</spring-boot.version> <!-- Версия Spring Boot BOM (Bill of Materials). Определяет совместимые версии всех Spring-модулей и их зависимостей. -->
+        <maven.compiler.source>25</maven.compiler.source> <!-- Версия исходного кода Java, которую поддерживает компилятор -->
+        <maven.compiler.target>25</maven.compiler.target> <!-- Версия Java, в которую будет скомпилирован байткод -->
     </properties>
+
+    <!--
+        Определение версий зависимостей для всех дочерних модулей.
+        Сами зависимости не подключаются — только указываются версии.
+        В дочерних модулях пишем <dependency> без <version> и подключаем конкретные зависимости.
+    -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -22,8 +44,13 @@
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
-                <scope>import</scope>
+                <scope>import</scope> <!--import — используется только с type=pom. Позволяет импортировать зависимости из BOM в текущий проект. -->
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!-- Список модулей, которые входят в сборку -->
+    <modules>
+        <module>backend/auth-service</module>
+    </modules>
 </project>

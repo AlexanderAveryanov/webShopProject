@@ -1,0 +1,13 @@
+server:
+  port: 8081                      # порт, на котором сервис будет слушать запросы
+
+spring:
+  application:
+    name: auth-service            # имя сервиса (видно в логах, используется в Eureka)
+
+# Настройки Actuator (эндпоинты для мониторинга)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info      # какие actuator-эндпоинты открыть наружу
