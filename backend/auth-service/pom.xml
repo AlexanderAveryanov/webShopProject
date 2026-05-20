@@ -36,6 +36,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
         <!--
             spring-boot-starter-actuator — набор готовых HTTP-эндпоинтов, которые показывают состояние приложения:
             - /actuator/health  (проверка работоспособности)
@@ -45,6 +46,43 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Spring Data JPA - JPA переводит наши объекты и методы в SQL-запросы
+             @Entity, @Table, @Column, @Transactional + готовые методы CRUD без реализации и автогенерация SQL -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- Драйвер PostgreSQL - библиотека, которая умеет говорить с PostgreSQL на его протоколе. Необходима для физического соединения с БД -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+            <!--
+                Типы scope:
+                - compile (по умолчанию) - нужен при компиляции и при запуске
+                - runtime - не нужен при компиляции, но нужен при запуске
+              -->
+        </dependency>
+
+        <!-- Flyway миграции - инструмент для миграции схемы базы данных. Он выполняет SQL-скрипты в правильном порядке, отслеживая, что уже выполнено.
+             При старте приложения Flyway сам находит и выполняет новые SQL-скрипты. Таблица flyway_schema_history (создается автоматически) хранит, какие миграции уже накачены.
+        -->
+        <!-- Подключает Flyway и его автоконфигурацию для управления миграциями базы данных в Spring Boot -->
+        <!-- Этот стартер сам подтягивает нужную версию flyway-core совместимую с версией Spring Boot и интегрируется с DataSource -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
+        </dependency>
+        <!-- Добавляет поддержку PostgreSQL для Flyway, чтобы выполнять SQL-миграции именно для этой БД -->
+        <!-- Начиная с Flyway 9.x разделили поддержку разных БД на отдельные модули, поэтому теперь подключаем каждый отдельно -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-database-postgresql</artifactId>
+            <version>11.14.1</version> <!-- Указываем версию, т.к. ее нет в родительском POM -->
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -58,6 +96,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version> <!-- Родительский POM не управляет версиями плагинов, поэтому указываем -->
             </plugin>
         </plugins>
     </build>

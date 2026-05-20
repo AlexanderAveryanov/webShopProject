@@ -1,13 +1,49 @@
 server:
-  port: 8081                      # порт, на котором сервис будет слушать запросы
+  port: 8081 # порт, на котором сервис будет слушать запросы
+
+# Настройка уровней логирования
+logging:
+  level:
+    # Уровни логирования:
+    # ERROR - Только ошибки
+    # WARN - Предупреждения + ERROR
+    # INFO - Обычные рабочие события + WARN + ERROR
+    # DEBUG - Подробная информация для отладки (шаги, запросы, состояния)
+    # TRACE - Максимально детально (каждый шаг выполнения)
+    org.flywaydb: DEBUG # Для Flyway
+    org.springframework.boot.autoconfigure.flyway: DEBUG # Для автоконфигурации
 
 spring:
   application:
-    name: auth-service            # имя сервиса (видно в логах, используется в Eureka)
+    name: auth-service # имя сервиса (видно в логах, используется в Eureka)
+
+  # ===== НАСТРОЙКИ ПОДКЛЮЧЕНИЯ К БАЗЕ ДАННЫХ =====
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db
+    username: admin
+    password: admin
+
+  # ===== НАСТРОЙКИ JPA (ORM) =====
+  jpa:
+    hibernate:
+      # ddl-auto - стратегия управления схемой БД.
+      # validate - проверяет, соответствует ли схема БД @Entity-классам.
+      ddl-auto: validate
+    show-sql: true # вывод сгенерированные SQL-запросы в консоль
+    properties:
+      hibernate:
+        format_sql: true # форматировать SQL с переносами строк и отпусками (иначе все в одну строку)
+
+  # ===== НАСТРОЙКИ FLYWAY (МИГРАЦИИ) =====
+  flyway:
+    enabled: true # включить миханизм миграции
+    # Создать таблицу flyway_schema_history, если ее еще нет и пометить текущее состояние как базовое. Необходимо, если БД уже существовала до Flyway
+    baseline-on-migrate: true
+    locations: classpath:db/migration # где искать SQL-файлы миграций
 
 # Настройки Actuator (эндпоинты для мониторинга)
 management:
   endpoints:
     web:
       exposure:
-        include: health,info      # какие actuator-эндпоинты открыть наружу
+        include: health,info # какие actuator-эндпоинты открыть наружу

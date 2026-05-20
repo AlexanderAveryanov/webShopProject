@@ -1,0 +1,23 @@
+#Список сервисов (контейнеров), которые будут запущены.
+# Каждый сервис — это отдельный контейнер.
+services:
+  # Сервис PostgreSQL — база данных для auth-service
+  postgres:
+    image: postgres:17 # Образ. Если его нет локально, качает из Docker Hub
+    container_name: shop-postgres # Имя контейнера. Позволяет обращаться к контейнеру по имени
+    # Переменные окружения, которые передаются внутрь контейнера.
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: auth_db
+    # Проброс портов: "порт_хост(ПК):порт_контейнера"
+    ports:
+      - "5432:5432"
+    # Тома (volumes) — для сохранения данных вне контейнера.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Контейнер postgres, используй том postgres_data для своей папки /var/lib...
+
+# Объявление томов (volumes), которые используются сервисами (объявлены выше).
+volumes:
+  postgres_data: # Создать том для postgres_data на хосте
+  # Так как тело пустое, используются настройки по умолчанию. Docker сам решит, где хранить данные на диске
