@@ -28,8 +28,13 @@
     <properties>
         <java.version>25</java.version> <!-- Версия JDK для компиляции и запуска -->
         <spring-boot.version>4.0.6</spring-boot.version> <!-- Версия Spring Boot BOM (Bill of Materials). Определяет совместимые версии всех Spring-модулей и их зависимостей. -->
-        <maven.compiler.source>25</maven.compiler.source> <!-- Версия исходного кода Java, которую поддерживает компилятор -->
-        <maven.compiler.target>25</maven.compiler.target> <!-- Версия Java, в которую будет скомпилирован байткод -->
+        <maven.compiler.source>${java.version}</maven.compiler.source> <!-- Версия исходного кода Java, которую поддерживает компилятор -->
+        <maven.compiler.target>${java.version}</maven.compiler.target> <!-- Версия Java, в которую будет скомпилирован байткод -->
+        <maven.compiler-plugin.version>3.15.0</maven.compiler-plugin.version> <!-- Версия плагина Maven -->
+        <lombok.version>1.18.38</lombok.version>
+        <jjwt.version>0.12.6</jjwt.version>
+        <flyway-database-postgresql.version>11.14.1</flyway-database-postgresql.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <!--

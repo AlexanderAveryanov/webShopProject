@@ -17,13 +17,13 @@ spring:
   application:
     name: auth-service # имя сервиса (видно в логах, используется в Eureka)
 
-  # ===== НАСТРОЙКИ ПОДКЛЮЧЕНИЯ К БАЗЕ ДАННЫХ =====
+  # Настройки подключения к БД
   datasource:
     url: jdbc:postgresql://localhost:5432/auth_db
     username: admin
     password: admin
 
-  # ===== НАСТРОЙКИ JPA (ORM) =====
+  # Настройки JPA (ORM)
   jpa:
     hibernate:
       # ddl-auto - стратегия управления схемой БД.
@@ -34,7 +34,7 @@ spring:
       hibernate:
         format_sql: true # форматировать SQL с переносами строк и отпусками (иначе все в одну строку)
 
-  # ===== НАСТРОЙКИ FLYWAY (МИГРАЦИИ) =====
+  # Настройки FLYWAY (миграции)
   flyway:
     enabled: true # включить миханизм миграции
     # Создать таблицу flyway_schema_history, если ее еще нет и пометить текущее состояние как базовое. Необходимо, если БД уже существовала до Flyway
@@ -47,3 +47,10 @@ management:
     web:
       exposure:
         include: health,info # какие actuator-эндпоинты открыть наружу
+
+# Настройки JWT (механизма аутентификации)
+# secret - секретный ключ для подписи созданных токенов JWT
+# expiration - время жизни токена
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970} # Используется переменная окружения JWT_SECRET, а если ее нет, то значение по умолчанию.
+  expiration: ${JWT_EXPIRATION:86400000} # 86400000 = 24 часа
