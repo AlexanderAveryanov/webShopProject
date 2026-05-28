@@ -22,6 +22,63 @@ import java.util.Map;
 // @ResponseBody - Автоматически преобразует возвращаемый объект в JSON
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * Универсальный метод для формирования ответа с ошибкой
+     *
+     * @param status           - HTTP статус
+     * @param messageException - Текст сообщения ошибки
+     * @param details          - Детали ошибки по полям
+     * @return ResponseEntity с ErrorResponse в теле
+     */
+    private ResponseEntity<ErrorResponse> handleException(
+            HttpStatus status,
+            String messageException,
+            Map<String, String> details
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(status.getReasonPhrase())
+                .message(messageException)
+                .details(details)
+                .build();
+        return ResponseEntity.status(status).body(errorResponse); // Spring сам вызывает .value у status
+    }
+
+    /**
+     * Исключение, выбрасываемое при попытке регистрации с уже существующим email (409)
+     */
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailAlreadyExistsExceptions(EmailAlreadyExistsException ex) {
+        return handleException(HttpStatus.CONFLICT, ex.getMessage(), null);
+    }
+
+    /**
+     * Исключение, выбрасываемое при неверном пароле (401)
+     */
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPasswordException(InvalidPasswordException ex) {
+        return handleException(HttpStatus.UNAUTHORIZED, ex.getMessage(), null);
+    }
+
+    /**
+     * Исключение, выбрасываемое когда пользователь не найден по email (404)
+     */
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        return handleException(HttpStatus.NOT_FOUND, ex.getMessage(), null);
+    }
+
+    /**
+     * Необработанные исключения
+     * Возвращает 500 Internal Server Error.
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
+        return handleException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), null);
+    }
+
     /**
      * Обработка ошибок валидации (@Valid).
      * Возвращает 400 Bad Request с подробностями, какое поле не прошло валидацию.
@@ -34,43 +91,6 @@ public class GlobalExceptionHandler {
             String errorMessage = error.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.BAD_REQUEST.value())
-                .error("Validation failed")
-                .message("Проверьте правильность заполнения полей")
-                .details(errors)
-                .build();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
-    }
-
-    /**
-     * Обработка бизнес-ошибок (например, "Email уже используется").
-     * Возвращает 409 Conflict.
-     */
-    @ExceptionHandler(RuntimeException.class) // Ловит все бизнес-ошибки (RuntimeException)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        HttpStatus status;
-
-        if (ex.getMessage().contains("Email уже используется")) {
-            status = HttpStatus.CONFLICT; // 409
-        } else if (ex.getMessage().contains("Не найден пользователь")) {
-            status = HttpStatus.NOT_FOUND; // 404
-        } else if (ex.getMessage().contains("Неверный пароль")) {
-            status = HttpStatus.UNAUTHORIZED; // 401
-        } else {
-            status = HttpStatus.INTERNAL_SERVER_ERROR; // 500
-        }
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(status.value())
-                .error(status.getReasonPhrase())
-                .message(ex.getMessage())
-                .build();
-
-        return ResponseEntity.status(status).body(errorResponse);
+        return handleException(HttpStatus.BAD_REQUEST, "Проверьте правильность заполнения полей", errors);
     }
 }
