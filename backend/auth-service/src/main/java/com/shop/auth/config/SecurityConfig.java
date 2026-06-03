@@ -1,5 +1,6 @@
 package com.shop.auth.config;
 
+import com.shop.auth.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,6 +33,17 @@ import java.util.List;
 // Под капотом регистрирует цепочку фильтров springSecurityFilterChain в контейнере сервлетов
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    /**
+     * Конструктор внедрения зависимостей
+     * Когда Spring вызывает конструктор конфигурации, смотрит на то, что требует
+     * конструктор, ищет в своем контейнере бин фильтра и подставляет его сюда.
+     */
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
 
     /**
      * Настройка цепочки фильтров безопасности.
@@ -69,8 +82,9 @@ public class SecurityConfig {
                 // STATELESS — не создаём HTTP-сессии, каждый запрос аутентифицируется отдельно (через JWT)
                 // Это стандарт для REST API
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Добавляем фильтр аутентификации JWT ДО стандартного фильтра
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

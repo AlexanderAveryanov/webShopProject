@@ -45,7 +45,7 @@ public class JwtTokenProvider {
      * @param token JWT-токен
      * @return id (subject) из токена
      */
-    public String getUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         // Claims - объект, содержащий все данные, зашитые в токен:
         // - Subject - Субъект (обычно id пользователя, или другое уникальное значение для идентификации)
         // - IssuedAt - Время выдачи токена
@@ -57,7 +57,7 @@ public class JwtTokenProvider {
                 .build() // Завершает конфигурацию парсера и создает готовый объект JwtParser
                 .parseSignedClaims(token) // Проверка подписи токена (через установленный секретный ключ в verifyWith) и срок действия. Если все ок, возвращает объект Jws<Claims>
                 .getPayload(); // Достает объект Claims (данные) из объекта Jws<Claims> (подпись + данные)
-        return claims.getSubject(); // Достает id пользователя
+        return Long.parseLong(claims.getSubject()); // Достает id пользователя
     }
 
     /**
