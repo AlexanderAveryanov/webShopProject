@@ -15,6 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * Сервис для аутентификации и регистрации пользователей.
  * <p>
@@ -49,12 +51,12 @@ public class AuthService {
      *
      * @param request DTO с данными для регистрации (email, password, firstName, lastName)
      * @return DTO с данными созданного пользователя (без пароля)
-     * @throws RuntimeException если пользователь с таким email уже существует
+     * @throws EmailAlreadyExistsException если пользователь с таким email уже существует
      */
     public UserResponse register(RegisterRequest request) {
         // 1. Проверяем, не занят ли email
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyExistsException("Email уже используется: " + request.getEmail());
+            throw new EmailAlreadyExistsException(request.getEmail());
         }
 
         // 2. Создаём нового пользователя
@@ -82,7 +84,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         // 1. Ищем пользователя по email
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException("Не найден пользователь с Email: " + request.getEmail()));
+                .orElseThrow(() -> new UserNotFoundException(request.getEmail()));
 
         // 2. Проверяем пароль
         // matches - берет пароль введенный пользователем и генерирует хеш на основе введенного пароля и соли из хеша, хранящегося в БД для данного пользователя.
@@ -99,12 +101,37 @@ public class AuthService {
     }
 
     /**
+     * Поиск пользователя по id
+     *
+     * @param userId id пользователя
+     * @return DTO UserResponse
+     * @throws UserNotFoundException если пользователь не найден
+     */
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        return mapToUserResponse(user);
+    }
+
+    /**
+     * Поиск всех пользователей
+     *
+     * @return Последовательность DTO UserResponse
+     */
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::mapToUserResponse)
+                .toList();
+    }
+
+    /**
      * Преобразует сущность User в UserResponse DTO.
      *
      * @param user сущность пользователя
      * @return DTO для ответа клиенту
      */
-    private UserResponse mapToUserResponse(User user) {
+    public UserResponse mapToUserResponse(User user) {
         UserResponse response = new UserResponse();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
@@ -122,8 +149,19 @@ public class AuthService {
      * @return DTO для ответа клиенту
      */
     private AuthResponse mapToAuthResponse(String token, User user) {
-        AuthResponse response = new AuthResponse();
+        AuthResponse response = mapToAuthResponse(user);
         response.setToken(token);
+        return response;
+    }
+
+    /**
+     * Преобразует сущность User в AuthResponse DTO.
+     *
+     * @param user сущность пользователя
+     * @return DTO для ответа клиенту
+     */
+    public AuthResponse mapToAuthResponse(User user) {
+        AuthResponse response = new AuthResponse();
         response.setType(AuthResponse.BEARER);
         response.setId(user.getId());
         response.setEmail(user.getEmail());

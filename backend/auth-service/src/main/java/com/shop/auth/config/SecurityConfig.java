@@ -3,6 +3,7 @@ package com.shop.auth.config;
 import com.shop.auth.security.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,6 +33,7 @@ import java.util.List;
 // Активирует механизмы безопасности Spring Security: фильтры, аутентификацию, авторизацию
 // Под капотом регистрирует цепочку фильтров springSecurityFilterChain в контейнере сервлетов
 @EnableWebSecurity
+@EnableMethodSecurity // Для того, чтобы работали аннотации @PreAuthorize, @PostAuthorize, @Secured, @RolesAllowed
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -74,6 +76,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Публичные эндпоинты — доступны без токена
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        // Эндпоинты только для роли ADMIN
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Все остальные запросы требуют аутентификации
                         .anyRequest().authenticated()
                 )

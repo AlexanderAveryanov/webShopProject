@@ -4,14 +4,16 @@ import com.shop.auth.dto.AuthResponse;
 import com.shop.auth.dto.LoginRequest;
 import com.shop.auth.dto.RegisterRequest;
 import com.shop.auth.dto.UserResponse;
+import com.shop.auth.entity.User;
 import com.shop.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * REST-контроллер для аутентификации и регистрации пользователей.
@@ -34,6 +36,7 @@ public class AuthController {
         this.authService = authService;
     }
 
+    // ===== ПУБЛИЧНЫЕ ЭНДПОИНТЫ =====
     /**
      * Регистрация нового пользователя.
      *
@@ -56,5 +59,40 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    // ===== ЭНДПОИНТЫ ДЛЯ АВТОРИЗОВАННЫХ ПОЛЬЗОВАТЕЛЕЙ =====
+    /**
+     * Получение информации о текущем аутентифицированном пользователе
+     *
+     * @return DTO с данными пользователя
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal User user) {
+        return ResponseEntity.ok(authService.mapToUserResponse(user));
+    }
+
+    // ===== ЭНДПОИНТЫ ТОЛЬКО ДЛЯ ADMIN =====
+    /**
+     * Получение информации о всех пользователях
+     *
+     * @return Последовательность DTO с данными пользователей
+     */
+    @GetMapping("/users")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserResponse>> getUsers() {
+        return ResponseEntity.ok(authService.getAllUsers());
+    }
+
+    /**
+     * Получение пользователя по id
+     *
+     * @param userId id пользователя
+     * @return DTO с данными пользователя
+     */
+    @GetMapping("/users/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable("id") Long userId) {
+        return ResponseEntity.ok(authService.getUserById(userId));
     }
 }
