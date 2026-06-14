@@ -75,7 +75,7 @@ public class SecurityConfig {
                 // 3. Настраиваем авторизацию запросов
                 .authorizeHttpRequests(auth -> auth
                         // Публичные эндпоинты — доступны без токена
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/actuator/health", "/actuator/info").permitAll()
                         // Эндпоинты только для роли ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         // Все остальные запросы требуют аутентификации

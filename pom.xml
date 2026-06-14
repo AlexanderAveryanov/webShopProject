@@ -57,5 +57,6 @@
     <!-- Список модулей, которые входят в сборку -->
     <modules>
         <module>backend/auth-service</module>
+        <module>backend/product-service</module>
     </modules>
 </project>
