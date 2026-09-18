@@ -53,26 +53,12 @@
         </dependency>
     </dependencies>
 
-    <!--
-        Плагины сборки. Те же самые, что и в auth-service, — с ними модуль собирается
-        в executable JAR (см. пояснения к каждому плагину ниже).
-    -->
     <build>
         <plugins>
-            <!--
-                spring-boot-maven-plugin — упаковывает приложение в исполняемый JAR.
-                Без него модуль собрался бы в "тонкий" JAR без зависимостей и без Main-Class.
-                Важно: привязка goal repackage к фазе package нужна вручную, потому что
-                наш родитель (webShopProject) — это НЕ spring-boot-starter-parent,
-                который сам по умолчанию привязывает repackage. Поэтому мы явно указываем
-                <executions><execution><goal>repackage</goal></execution></executions>.
-                Внутрь кладутся все зависимости (BOOT-INF/), прописывается Main-Class (JarLauncher),
-                и JAR можно запускать через java -jar.
-            -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version> <!-- Версии плагинов указываем сами — родительский POM их не управляет -->
+                <version>${spring-boot.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -81,13 +67,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--
-                maven-compiler-plugin — компиляция Java-кода.
-                Явно задаём версию Java (source/target) и подключаем Lombok как процессор
-                аннотаций (annotationProcessorPaths). На Java 25 без явного указания
-                процессора Lombok может тихо не отработать, и аннотации (@Getter, @Data и т.д.)
-                не сгенерируют код. Поэтому processor указываем здесь вручную, как и в auth-service.
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
