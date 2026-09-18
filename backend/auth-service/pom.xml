@@ -148,6 +148,26 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version> <!-- Родительский POM не управляет версиями плагинов, поэтому указываем -->
+                <!--
+                    Привязываем goal repackage к фазе package.
+                    Зачем это нужно: у spring-boot-maven-plugin есть два режима сборки:
+                    - "обычный" thin JAR — только классы проекта (без зависимостей);
+                    - repackaged fat JAR — внутрь кладутся ВСЕ зависимости (Spring, драйверы БД и т.д.),
+                      добавляется слой BOOT-INF/ и прописывается Main-Class (JarLauncher),
+                      чтобы JAR можно было запустить через java -jar.
+                    Почему без <executions> этого не происходит: родитель spring-boot-starter-parent
+                    автоматически привязывает repackage к фазе package, а наш собственный
+                    родитель (webShopProject) — нет. Поэтому плагин из коробки вообще не выполняет
+                    repackage, и мы связываем его вручную. Без этой привязки получился бы
+                    "тонкий" JAR, который java -jar запустить не сможет.
+                -->
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- maven-compiler-plugin — это официальный плагин Maven для компиляции Java-кода.
