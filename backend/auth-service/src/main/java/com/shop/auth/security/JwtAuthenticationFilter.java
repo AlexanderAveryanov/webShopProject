@@ -2,7 +2,6 @@ package com.shop.auth.security;
 
 import com.shop.auth.dto.AuthResponse;
 import com.shop.auth.entity.User;
-import com.shop.auth.exception.UserNotFoundException;
 import com.shop.auth.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -69,16 +68,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = extractToken(request);
         if(token != null && jwtTokenProvider.validateToken(token)) {
             Long userId = jwtTokenProvider.getUserIdFromToken(token);
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new UserNotFoundException(userId));
-            // Создаем объект аутентификации
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    user, // principal — объект пользователя
-                    null, // credentials — пароль не нужен, т.к. уже проверен
-                    List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())) // authorities — права
-            );
-            // Устанавливаем аутентификацию в SecurityContext
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Если пользователь найден, то аутентифицируем. Иначе если обращение к защищенному эндпоинту, то он сам вернет 401 через AuthenticationEntryPoint (т.к. аутентификация не пройдена)
+            // .ifPresent() - выполняет переданный код, только если значение внутри Option есть
+            userRepository.findById(userId).ifPresent(user -> {
+                // Создаем объект аутентификации
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        user, // principal — объект пользователя
+                        null, // credentials — пароль не нужен, т.к. уже проверен
+                        List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())) // authorities — права
+                );
+                // Устанавливаем аутентификацию в SecurityContext
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            });
         }
         // Продолжаем цепочку фильтров
         filterChain.doFilter(request, response);
