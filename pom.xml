@@ -54,6 +54,45 @@
         </dependencies>
     </dependencyManagement>
 
+    <!--
+        Общая конфигурация плагинов сборки для всех дочерних модулей.
+        pluginManagement — это аналог dependencyManagement, но для плагинов:
+        здесь ОПРЕДЕЛЯЕТСЯ версия и настройки плагинов, а сами плагины в сборку
+        не подключаются. В дочернем модуле достаточно объявить <plugin>
+        (без <version> и без <executions>) — Maven сам подтянет конфигурацию отсюда.
+
+        Зачем это нужно: у каждого сервиса (auth, product, а в будущем и рекомендаций)
+        одна и та же конфигурация сборки Spring Boot. Храня её в одном месте,
+        мы избавляемся от дублирования в каждом pom.xml и облегчаем её изменение.
+    -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--
+                    Плагин сборки Spring Boot.
+                    Упаковывает приложение в executable JAR (fat JAR со всеми зависимостями)
+                    и позволяет запускать через java -jar или mvn spring-boot:run.
+                    Привязываем goal repackage к фазе package: в отличие от
+                    spring-boot-starter-parent, наш собственный родитель (webShopProject)
+                    сам этого не делает, поэтому связываем вручную. Без этой привязки
+                    получился бы "тонкий" JAR, который нельзя запустить через java -jar.
+                -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>repackage</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
     <!-- Список модулей, которые входят в сборку -->
     <modules>
         <module>backend/auth-service</module>
