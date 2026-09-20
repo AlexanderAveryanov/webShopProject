@@ -4,3 +4,7 @@ target/
 Thumbs.db
 desktop.ini
 *.log
+
+# Инструменты разработки (локальная конфигурация)
+.claude/
+.opencode/
