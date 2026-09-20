@@ -89,6 +89,28 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <!--
+                    maven-compiler-plugin — официальный плагин Maven для компиляции Java-кода.
+                    Указываем версию Java (${java.version}) и Lombok как процессор аннотаций,
+                    чтобы геттеры, сеттеры, конструкторы и билдеры генерировались при компиляции.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven.compiler-plugin.version}</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths> <!-- Указываем Lombok как процессор аннотаций -->
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
