@@ -66,4 +66,4 @@ Protected endpoints SHALL require a valid bearer token in the `Authorization` he
 - **WHEN** a request carries a valid token whose subject does not match any existing user
 - **THEN** the system denies access
 
-> **Note:** Сейчас токен удалённого пользователя даёт HTTP 404 через `UserNotFoundException`, а не чистый отказ. Доработка этого кейса будет выполнена позже в отдельной задаче.
+> **Note:** Токен удалённого пользователя не приводит к исключению в фильтре: запрос просто не аутентифицируется, и защищённый эндпоинт возвращает чистый отказ (HTTP 401 через `AuthenticationEntryPoint`).
