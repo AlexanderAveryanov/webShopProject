@@ -5,7 +5,6 @@ import com.shop.auth.entity.User;
 import com.shop.auth.exception.UserNotFoundException;
 import com.shop.auth.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,8 +15,8 @@ import java.util.List;
  * - получение списка всех пользователей
  * - получение пользователя по id
  */
+// @Transactional - данную аннотацию будем использовать непосредственно на каждом методе, чтобы указать явно будет ли транзакцияд readonly или нет
 @Service
-@Transactional(readOnly = true)
 public class AdminService {
     private final UserRepository userRepository;
 
