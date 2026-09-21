@@ -9,4 +9,5 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_users_email ON users(email);
+-- Индекс для проверки уникальности email без учета регистра. Также ускоряет поиск по нормализованному email
+CREATE UNIQUE INDEX idx_users_email_lower ON users (LOWER(email));

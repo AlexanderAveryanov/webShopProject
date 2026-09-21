@@ -16,6 +16,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 /**
  * Сервис для аутентификации и регистрации пользователей.
  * <p>
@@ -54,13 +56,13 @@ public class AuthService {
      */
     public UserResponse register(RegisterRequest request) {
         // 1. Проверяем, не занят ли email
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(normalizeEmail(request.getEmail()))) {
             throw new EmailAlreadyExistsException(request.getEmail());
         }
 
         // 2. Создаём нового пользователя
         User user = new User();
-        user.setEmail(request.getEmail());
+        user.setEmail(normalizeEmail(request.getEmail()));
         user.setPassword(passwordEncoder.encode(request.getPassword())); // хешируем пароль
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -86,7 +88,7 @@ public class AuthService {
      */
     public AuthResponse login(LoginRequest request) {
         // 1. Ищем пользователя по email
-        User user = userRepository.findByEmail(request.getEmail())
+        User user = userRepository.findByEmail(normalizeEmail(request.getEmail()))
                 .orElseThrow(() -> new UserNotFoundException(request.getEmail()));
 
         // 2. Проверяем пароль
@@ -147,5 +149,18 @@ public class AuthService {
         response.setLastName(user.getLastName());
         response.setRole(user.getRole());
         return response;
+    }
+
+    /**
+     * Приводит email к нижнему регистру (Locale.ROOT).
+     * <p>
+     * Обеспечивает единообразное хранение и поиск пользователей по email,
+     * не зависящее от регистра, в котором адрес был введён при регистрации или входе.
+     *
+     * @param email email пользователя
+     * @return email в нижнем регистре
+     */
+    private String normalizeEmail(String email) {
+        return email.toLowerCase(Locale.ROOT);
     }
 }
