@@ -72,10 +72,10 @@
         </dependency>
         <!-- Добавляет поддержку PostgreSQL для Flyway, чтобы выполнять SQL-миграции именно для этой БД -->
         <!-- Начиная с Flyway 9.x разделили поддержку разных БД на отдельные модули, поэтому теперь подключаем каждый отдельно -->
+        <!-- Версия управляется Spring Boot BOM (импортируется родительским POM) -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-database-postgresql</artifactId>
-            <version>${flyway-database-postgresql.version}</version> <!-- Указываем версию, т.к. ее нет в родительском POM -->
             <scope>runtime</scope>
         </dependency>
 
@@ -103,18 +103,15 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -129,10 +126,10 @@
         </dependency>
 
         <!-- Lombok — нужен только во время компиляции для генерации кода (геттеры, сеттеры, конструкторы, билдеры) -->
+        <!-- Версия управляется Spring Boot BOM и родительским POM, поэтому здесь не указывается -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
