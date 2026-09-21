@@ -22,6 +22,10 @@ public class LoginRequest {
     private String email;
 
     @NotBlank(message = "Необходимо заполнить обязательный атрибут 'Пароль'")
-    @Size(min = 6, message = "Пароль должен содержать минимум 6 символов")
+    @Size(min = 6, max = 72, message = "Пароль должен содержать от 6 до 72 символов")
     private String password;
+
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
 }
