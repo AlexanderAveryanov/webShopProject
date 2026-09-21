@@ -31,9 +31,14 @@
         <maven.compiler.source>${java.version}</maven.compiler.source> <!-- Версия исходного кода Java, которую поддерживает компилятор -->
         <maven.compiler.target>${java.version}</maven.compiler.target> <!-- Версия Java, в которую будет скомпилирован байткод -->
         <maven.compiler-plugin.version>3.15.0</maven.compiler-plugin.version> <!-- Версия плагина Maven -->
-        <lombok.version>1.18.38</lombok.version>
+        <!--
+            Версия Lombok, используемая процессором аннотаций в maven-compiler-plugin.
+            Соответствует версии, управляемой Spring Boot BOM (org.projectlombok:lombok),
+            чтобы избежать расхождения между зависимостью и процессором аннотаций.
+        -->
+        <lombok.version>1.18.46</lombok.version>
+        <!-- Версия библиотек JJWT; управляется из родительского POM (см. dependencyManagement) -->
         <jjwt.version>0.12.6</jjwt.version>
-        <flyway-database-postgresql.version>11.14.1</flyway-database-postgresql.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -50,6 +55,27 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope> <!--import — используется только с type=pom. Позволяет импортировать зависимости из BOM в текущий проект. -->
+            </dependency>
+
+            <!--
+                Библиотеки JJWT для работы с JWT. Не входят в Spring Boot BOM,
+                поэтому их версия централизованно задаётся здесь — в детских модулях
+                версия не указывается.
+            -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
