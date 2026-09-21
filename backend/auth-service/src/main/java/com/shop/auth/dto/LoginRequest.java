@@ -1,34 +1,27 @@
 package com.shop.auth.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * DTO для запроса на авторизацию.
  * Клиент отправляет эту форму на POST /api/auth/login
  */
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LoginRequest {
-
-    @NotNull(message = "Email обязателен")
-    @Email(message = "Некорректный формат email")
+    @NotBlank(message = "Необходимо заполнить обязательный атрибут 'Email'")
+    @Email(message = "Некорректный формат Email")
     private String email;
 
-    @NotNull(message = "Пароль обязателен")
+    @NotBlank(message = "Необходимо заполнить обязательный атрибут 'Пароль'")
+    @Size(min = 6, message = "Пароль должен содержать минимум 6 символов")
     private String password;
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
 }
