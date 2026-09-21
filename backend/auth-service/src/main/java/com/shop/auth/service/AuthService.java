@@ -154,15 +154,15 @@ public class AuthService {
     }
 
     /**
-     * Приводит email к нижнему регистру (Locale.ROOT).
+     * Приводит email к нижнему регистру (Locale.ROOT) и убирает пробелы по краям.
      * <p>
      * Обеспечивает единообразное хранение и поиск пользователей по email,
-     * не зависящее от регистра, в котором адрес был введён при регистрации или входе.
+     * не зависящее от регистра и лишних пробелов, при вводе адреса при регистрации или входе.
      *
      * @param email email пользователя
-     * @return email в нижнем регистре
+     * @return email в нижнем регистре без пробелов по краям
      */
     private String normalizeEmail(String email) {
-        return email.toLowerCase(Locale.ROOT);
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }

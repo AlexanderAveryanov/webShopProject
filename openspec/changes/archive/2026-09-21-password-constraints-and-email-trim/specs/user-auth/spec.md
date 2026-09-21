@@ -1,10 +1,6 @@
-# user-auth Specification
+# Spec Delta
 
-## Purpose
-
-Handles user authentication in the auth-service: registration of new users, login with JWT issuance, and retrieval of the currently authenticated user.
-
-## Requirements
+## MODIFIED Requirements
 
 ### Requirement: Registration of a new user
 
@@ -65,29 +61,3 @@ The system SHALL authenticate a registered user by email and password and issue 
 #### Scenario: Login with a wrong password
 - **WHEN** a user sends `POST /api/auth/login` with a registered email and an incorrect password
 - **THEN** the system returns HTTP 401 with an error response
-
-### Requirement: Retrieval of the current user
-
-The system SHALL return the data of the currently authenticated user identified by the bearer token.
-
-#### Scenario: Authenticated user retrieves their own data
-- **WHEN** a user sends `GET /api/auth/me` with a valid bearer token
-- **THEN** the system returns HTTP 200 with the user data (id, email, firstName, lastName, role)
-
-#### Scenario: Unauthenticated request to current-user endpoint
-- **WHEN** a request without a valid bearer token is sent to `GET /api/auth/me`
-- **THEN** the system denies access
-
-### Requirement: JWT validation of protected requests
-
-Protected endpoints SHALL require a valid bearer token in the `Authorization` header in the form `Bearer <token>`. The token SHALL be verified by signature and expiration; the authenticated user SHALL be resolved from the token's subject.
-
-#### Scenario: Request with an expired or invalid token
-- **WHEN** a request to a protected endpoint carries an expired or otherwise invalid bearer token
-- **THEN** the system denies access
-
-#### Scenario: Request with a token for a deleted user
-- **WHEN** a request carries a valid token whose subject does not match any existing user
-- **THEN** the system denies access
-
-> **Note:** Токен удалённого пользователя не приводит к исключению в фильтре: запрос просто не аутентифицируется, и защищённый эндпоинт возвращает чистый отказ (HTTP 401 через `AuthenticationEntryPoint`).
