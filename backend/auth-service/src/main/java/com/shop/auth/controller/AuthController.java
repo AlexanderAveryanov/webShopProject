@@ -9,11 +9,8 @@ import com.shop.auth.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * REST-контроллер для аутентификации и регистрации пользователей.
@@ -21,6 +18,7 @@ import java.util.List;
  * Эндпоинты:
  * - POST /api/auth/register — регистрация нового пользователя
  * - POST /api/auth/login — вход пользователя (выдача JWT)
+ * - GET /api/auth/me — данные текущего пользователя
  */
 @RestController
 @RequestMapping("/api/auth")
@@ -70,29 +68,5 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(authService.mapToUserResponse(user));
-    }
-
-    // ===== ЭНДПОИНТЫ ТОЛЬКО ДЛЯ ADMIN =====
-    /**
-     * Получение информации о всех пользователях
-     *
-     * @return Последовательность DTO с данными пользователей
-     */
-    @GetMapping("/users")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<UserResponse>> getUsers() {
-        return ResponseEntity.ok(authService.getAllUsers());
-    }
-
-    /**
-     * Получение пользователя по id
-     *
-     * @param userId id пользователя
-     * @return DTO с данными пользователя
-     */
-    @GetMapping("/users/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable("id") Long userId) {
-        return ResponseEntity.ok(authService.getUserById(userId));
     }
 }
