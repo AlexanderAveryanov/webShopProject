@@ -1,12 +1,17 @@
 package com.shop.auth.exception;
 
 import com.shop.auth.dto.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -22,6 +27,8 @@ import java.util.Map;
 // @ResponseBody - Автоматически преобразует возвращаемый объект в JSON
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     /**
      * Универсальный метод для формирования ответа с ошибкой
@@ -71,12 +78,37 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * Необработанные исключения
-     * Возвращает 500 Internal Server Error.
+     * Неверный формат параметра пути или запроса (400)
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        return handleException(HttpStatus.BAD_REQUEST, "Некорректный формат параметра: " + ex.getName(), null);
+    }
+
+    /**
+     * Некорректное тело запроса, не являющееся валидным JSON (400)
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        return handleException(HttpStatus.BAD_REQUEST, "Некорректное тело запроса", null);
+    }
+
+    /**
+     * Нарушение ограничений целостности БД, не перехваченное на уровне сервиса (409)
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        return handleException(HttpStatus.CONFLICT, "Нарушение ограничений базы данных", null);
+    }
+
+    /**
+     * Необработанные исключения (500).
+     * Ошибка логируется, клиенту отдаётся общий текст без внутренних деталей.
      */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
-        return handleException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), null);
+        log.error("Необработанная ошибка при обработке запроса", ex);
+        return handleException(HttpStatus.INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера", null);
     }
 
     /**

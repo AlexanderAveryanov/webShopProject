@@ -11,6 +11,7 @@ import com.shop.auth.exception.InvalidPasswordException;
 import com.shop.auth.exception.UserNotFoundException;
 import com.shop.auth.repository.UserRepository;
 import com.shop.auth.security.JwtTokenProvider;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,11 +68,15 @@ public class AuthService {
         user.setLastName(request.getLastName());
         user.setRole(Role.USER); // новым пользователям устанавливаем роль USER
 
-        // 3. Сохраняем в базу данных
-        User savedUser = userRepository.save(user);
+        // 3. Пытаемся сохранить в БД. В случае если отработал unique-индекс (если другой параллельный запрос уже вставил этот email), то кидаем ошибку.
+        try {
+            User savedUser = userRepository.save(user);
 
-        // 4. Формируем и возвращаем ответ (без пароля)
-        return mapToUserResponse(savedUser);
+            // 4. Формируем и возвращаем ответ (без пароля)
+            return mapToUserResponse(savedUser);
+        } catch (DataIntegrityViolationException e) {
+            throw new EmailAlreadyExistsException(request.getEmail());
+        }
     }
 
     /**
