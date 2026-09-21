@@ -18,6 +18,10 @@ The system SHALL allow a guest to register with email and password and create a 
 - **WHEN** a guest sends `POST /api/auth/register` with an email that is already registered
 - **THEN** the system returns HTTP 409 with an error response
 
+#### Scenario: Registration with an email differing only in letter case
+- **WHEN** a guest sends `POST /api/auth/register` with an email that matches an already registered address, differing only in letter case (e.g. `Foo@x.com` vs `foo@x.com`)
+- **THEN** the system returns HTTP 409 with an error response
+
 #### Scenario: Registration with an invalid email format
 - **WHEN** a guest sends `POST /api/auth/register` with an email that does not match a valid email format
 - **THEN** the system returns HTTP 400 with field-level validation details
@@ -32,6 +36,10 @@ The system SHALL authenticate a registered user by email and password and issue 
 
 #### Scenario: Successful login
 - **WHEN** a user sends `POST /api/auth/login` with a registered email and the correct password
+- **THEN** the system returns HTTP 200 with the issued JWT token, its type "Bearer", and the user data
+
+#### Scenario: Login with an email differing only in letter case
+- **WHEN** a user sends `POST /api/auth/login` with a registered email typed in a different letter case
 - **THEN** the system returns HTTP 200 with the issued JWT token, its type "Bearer", and the user data
 
 #### Scenario: Login with an unknown email
