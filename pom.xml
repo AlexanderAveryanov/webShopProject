@@ -37,8 +37,7 @@
             чтобы избежать расхождения между зависимостью и процессором аннотаций.
         -->
         <lombok.version>1.18.46</lombok.version>
-        <!-- Версия библиотек JJWT; управляется из родительского POM (см. dependencyManagement) -->
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.12.6</jjwt.version> <!-- Версия библиотек JJWT; управляется из родительского POM (см. dependencyManagement) -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
