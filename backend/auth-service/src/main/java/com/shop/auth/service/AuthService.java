@@ -55,14 +55,16 @@ public class AuthService {
      * @throws EmailAlreadyExistsException если пользователь с таким email уже существует
      */
     public UserResponse register(RegisterRequest request) {
+        String normalizedEmail = normalizeEmail(request.getEmail());
+
         // 1. Проверяем, не занят ли email
-        if (userRepository.existsByEmail(normalizeEmail(request.getEmail()))) {
+        if (userRepository.existsByEmail(normalizedEmail)) {
             throw new EmailAlreadyExistsException(request.getEmail());
         }
 
         // 2. Создаём нового пользователя
         User user = new User();
-        user.setEmail(normalizeEmail(request.getEmail()));
+        user.setEmail(normalizedEmail);
         user.setPassword(passwordEncoder.encode(request.getPassword())); // хешируем пароль
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
