@@ -78,12 +78,9 @@ public class AuthService {
             // 4. Формируем и возвращаем ответ (без пароля)
             return mapToUserResponse(savedUser);
         } catch (DataIntegrityViolationException e) {
-            // Мапим в EmailAlreadyExistsException только если нарушена уникальность email.
-            // Иные нарушения целостности (напр. превышение длины значения) пробрасываем дальше,
-            // чтобы не маскировать их под 409 "Email уже существует".
-            if (isEmailUniqueViolation(e)) {
-                throw new EmailAlreadyExistsException(request.getEmail());
-            }
+            // Если нарушение уникальности (а поле для уникальности только email), то кидаем ошибку о существовании такого email
+            if (isEmailUniqueViolation(e)) throw new EmailAlreadyExistsException(request.getEmail());
+            // Иначе прокидываем ошибку далее
             throw e;
         }
     }
