@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.postgresql.util.PSQLException;
 
 import java.util.Locale;
 
@@ -77,8 +78,28 @@ public class AuthService {
             // 4. Формируем и возвращаем ответ (без пароля)
             return mapToUserResponse(savedUser);
         } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException(request.getEmail());
+            // Если нарушение уникальности (а поле для уникальности только email), то кидаем ошибку о существовании такого email
+            if (isEmailUniqueViolation(e)) throw new EmailAlreadyExistsException(request.getEmail());
+            // Иначе прокидываем ошибку далее
+            throw e;
         }
+    }
+
+    /**
+     * Проверяет, нарушена ли уникальность email.
+     * <p>
+     * Тип ошибки определяется не по тексту сообщения, а по стандартному коду SQLState 23505
+     * (unique_violation) у корневой PSQLException. Так как у users единственное unique-поле — email,
+     * любой 23505 при сохранении означает, что email уже занят.
+     *
+     * @param e перехваченная ошибка целостности данных
+     * @return true, если нарушена уникальность email
+     */
+    private boolean isEmailUniqueViolation(DataIntegrityViolationException e) {
+        Throwable cause = e.getMostSpecificCause(); // Проваливается по цепочке getCause() до самого глубокого исключения, т.е. до PSQLException. Там Postgres кладет стандартизированный код ошибки
+        // Если cause является PSQLException, он неявно приводится к типу и связывается с переменной psql - ее можно использовать далее без ручного приведения
+        // Итого получается: если cause является PSQLException, тогда он доступен как psql, и код состояния SQL у него равен "23505", верни true
+        return cause instanceof PSQLException psql && "23505".equals(psql.getSQLState());
     }
 
     /**

@@ -50,15 +50,10 @@
         </dependency>
 
         <!-- Драйвер PostgreSQL - библиотека, которая умеет говорить с PostgreSQL на его протоколе. Необходима для физического соединения с БД -->
+        <!-- scope compile: класс PSQLException используется в AuthService для определения типа DB-ошибки по SQLState -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-            <!--
-                Типы scope:
-                - compile (по умолчанию) - нужен при компиляции и при запуске
-                - runtime - не нужен при компиляции, но нужен при запуске
-              -->
         </dependency>
 
         <!-- Flyway миграции - инструмент для миграции схемы базы данных. Он выполняет SQL-скрипты в правильном порядке, отслеживая, что уже выполнено.
