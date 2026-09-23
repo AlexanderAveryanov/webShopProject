@@ -99,7 +99,9 @@ public class AuthService {
      * @return true, если нарушена уникальность email
      */
     private boolean isEmailUniqueViolation(DataIntegrityViolationException e) {
-        Throwable cause = e.getMostSpecificCause();
+        Throwable cause = e.getMostSpecificCause(); // Проваливается по цепочке getCause() до самого глубокого исключения, т.е. до PSQLException. Там Postgres кладет стандартизированный код ошибки
+        // Если cause является PSQLException, он неявно приводится к типу и связывается с переменной psql - ее можно использовать далее без ручного приведения
+        // Итого получается: если cause является PSQLException, тогда он доступен как psql, и код состояния SQL у него равен "23505", верни true
         return cause instanceof PSQLException psql && "23505".equals(psql.getSQLState());
     }
 
