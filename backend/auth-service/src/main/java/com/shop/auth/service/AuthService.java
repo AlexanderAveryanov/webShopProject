@@ -15,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.postgresql.util.PSQLException;
 
 import java.util.Locale;
 
@@ -77,8 +78,29 @@ public class AuthService {
             // 4. Формируем и возвращаем ответ (без пароля)
             return mapToUserResponse(savedUser);
         } catch (DataIntegrityViolationException e) {
-            throw new EmailAlreadyExistsException(request.getEmail());
+            // Мапим в EmailAlreadyExistsException только если нарушена уникальность email.
+            // Иные нарушения целостности (напр. превышение длины значения) пробрасываем дальше,
+            // чтобы не маскировать их под 409 "Email уже существует".
+            if (isEmailUniqueViolation(e)) {
+                throw new EmailAlreadyExistsException(request.getEmail());
+            }
+            throw e;
         }
+    }
+
+    /**
+     * Проверяет, нарушена ли уникальность email.
+     * <p>
+     * Тип ошибки определяется не по тексту сообщения, а по стандартному коду SQLState 23505
+     * (unique_violation) у корневой PSQLException. Так как у users единственное unique-поле — email,
+     * любой 23505 при сохранении означает, что email уже занят.
+     *
+     * @param e перехваченная ошибка целостности данных
+     * @return true, если нарушена уникальность email
+     */
+    private boolean isEmailUniqueViolation(DataIntegrityViolationException e) {
+        Throwable cause = e.getMostSpecificCause();
+        return cause instanceof PSQLException psql && "23505".equals(psql.getSQLState());
     }
 
     /**

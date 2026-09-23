@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RegisterRequest {
     @NotBlank(message = "Необходимо заполнить обязательный атрибут 'Email'")
+    @Size(max = 255, message = "Email не должен превышать 255 символов")
     @Email(message = "Некорректный формат Email")
     private String email;
 
@@ -25,7 +26,10 @@ public class RegisterRequest {
     @Size(min = 6, max = 72, message = "Пароль должен содержать от 6 до 72 символов")
     private String password;
 
+    @Size(max = 100, message = "Имя не должно превышать 100 символов")
     private String firstName;
+
+    @Size(max = 100, message = "Фамилия не должна превышать 100 символов")
     private String lastName;
 
     public void setEmail(String email) {
