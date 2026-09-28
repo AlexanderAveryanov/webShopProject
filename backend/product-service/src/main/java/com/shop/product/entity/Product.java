@@ -15,7 +15,8 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    // Размер поля в соответствии с миграцией Flyway.
+    @Column(nullable = false, length = 255)
     private String name;
 
     @Column
@@ -24,11 +25,14 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price; // Цена товара
 
-    @ManyToOne(fetch = FetchType.LAZY) // Тип связи (у многих товаров может быть одиа категория). Загружаем лениво, только при вызове getCategory()
+    // Ссылка на категорию товара. Поле названо categoryId ради единообразия с запросом и
+    // колонкой category_id, хотя тип здесь - объект Category, а не число
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
+    private Category categoryId;
 
-    @Column(name = "image_url")
+    // Размер поля в соответствии с миграцией Flyway.
+    @Column(name = "image_url", length = 500)
     private String imageUrl;
 
     @Column(name = "stock_quantity", nullable = false)

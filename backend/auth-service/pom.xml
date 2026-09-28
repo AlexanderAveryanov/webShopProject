@@ -86,28 +86,14 @@
         </dependency>
 
         <!-- JWT (Json Web Token) -->
-        <!-- Три зависимости для работы с JWT (jjwt-api, jjwt-impl, jjwt-jackson).
-             JWT используется вместо сессий в REST API (stateless-аутентификация):
-                 - Генерация токена при успешном логине
-                 - Валидация токена при каждом запросе
-                 - Извлечение email пользователя из токена
-                 Токен содержит email, роль и срок действия, подписан секретным ключом.
-                 api      - интерфейсы (аннотации, классы для работы с JWT)
-                 impl     - реализация (нужна в runtime)
-                 jackson  - для работы с JSON (сериализация/десериализация) -->
+        <!-- spring-boot-starter-oauth2-resource-server — штатные средства Spring Security для JWT:
+             - NimbusJwtEncoder подписывает токен приватным RSA-ключом (RS256) при логине
+             - NimbusJwtDecoder проверяет подпись и срок токена на каждом запросе
+             - библиотека nimbus-jose-jwt внутри стартера умеет отдавать JWKS с публичным ключом,
+               чтобы другие сервисы проверяли подпись сами, не получая секрет -->
         <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency>
 
         <!-- Валидация -->

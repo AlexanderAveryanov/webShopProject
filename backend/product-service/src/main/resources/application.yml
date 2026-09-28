@@ -30,10 +30,23 @@ spring:
 
   # Настройки FLYWAY (миграции)
   flyway:
-    enabled: true # включить миханизм миграции
+    enabled: true # включить механизм миграции
     # Создать таблицу flyway_schema_history, если ее еще нет и пометить текущее состояние как базовое. Необходимо, если БД уже существовала до Flyway
     baseline-on-migrate: true
     locations: classpath:db/migration # где искать SQL-файлы миграций
+
+  # Проверка JWT-токенов, выданных auth-service (OAuth2 Resource Server)
+  # Ключ подписи сервис не хранит: он забирает публичный ключ по адресу JWKS и сверяет
+  # подпись локально. issuer-uri попадает в проверку claim iss - токен должен быть выпущен
+  # именно тем сервисом, который указан здесь.
+  # Оба адреса заданы вместе намеренно: так Spring не опрашивает discovery-эндпоинт
+  # при старте, и product-service поднимается даже если auth-service временно недоступен.
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8081} # кто должен был выпустить токен
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8081/.well-known/jwks.json} # публичный ключ для проверки подписи
 
 # Настройки Actuator (эндпоинты для мониторинга)
 management:

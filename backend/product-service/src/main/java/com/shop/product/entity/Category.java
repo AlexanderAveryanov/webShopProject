@@ -16,7 +16,8 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    // Размер поля в соответствии с миграцией Flyway. Уникальность поля обеспечивается индексом БД.
+    @Column(nullable = false, length = 100)
     private String name;
 
     @Column
@@ -28,11 +29,10 @@ public class Category {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Описание связи таблицы categories - products для ORM (JPA), чтобы она могла строить запросы
-    // mappedBy = "category" - указывает на имя поля в классе Product, которое владеет связью
-    // cascade = CascadeType.ALL - При сохранении/удалении категории, операции применяются к товарам
-    // fetch = FetchType.LAZY - Товары загружаются только когда вызывается getProducts() - лениво
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // Связь с товарами. Каскада нет намеренно: удаление категории сервис делает сам,
+    // сначала удаляя товары запросом deleteAllByCategoryId, а уже потом саму категорию.
+    // Так поведение видно в коде, а не спрятано в БД, и его легко покрыть проверкой
+    @OneToMany(mappedBy = "categoryId", fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
 
     @PrePersist // Перед первым сохранением объекта в БД

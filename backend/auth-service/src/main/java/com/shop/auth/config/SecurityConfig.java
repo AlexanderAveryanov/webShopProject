@@ -75,7 +75,8 @@ public class SecurityConfig {
                 // 3. Настраиваем авторизацию запросов
                 .authorizeHttpRequests(auth -> auth
                         // Публичные эндпоинты — доступны без токена
-                        .requestMatchers("/api/auth/register", "/api/auth/login", "/actuator/health", "/actuator/info").permitAll()
+                        // /.well-known/jwks.json — публичный ключ для проверки подписи токенов в других сервисах
+                        .requestMatchers("/api/auth/register", "/api/auth/login", "/.well-known/jwks.json", "/actuator/health", "/actuator/info").permitAll()
                         // Все остальные запросы требуют аутентификации
                         // Ограничение по ролям задаётся на уровне методов (@PreAuthorize)
                         .anyRequest().authenticated()
