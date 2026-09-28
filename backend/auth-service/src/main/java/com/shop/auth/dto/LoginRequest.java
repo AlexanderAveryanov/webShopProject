@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LoginRequest {
     @NotBlank(message = "Необходимо заполнить обязательный атрибут 'Email'")
+    @Size(max = 255, message = "Email не должен превышать 255 символов")
     @Email(message = "Некорректный формат Email")
     private String email;
 
