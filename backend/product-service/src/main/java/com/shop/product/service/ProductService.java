@@ -146,7 +146,7 @@ public class ProductService {
         product.setStockQuantity(request.getStockQuantity());
         // Категорию ищем заранее, чтобы несуществующая давала понятную ошибку 404,
         // а не ошибку целостности от БД при попытке сохранить ссылку
-        product.setCategoryId(findCategory(request.getCategoryId()));
+        product.setCategory(findCategory(request.getCategoryId()));
     }
 
     /**
@@ -188,7 +188,7 @@ public class ProductService {
         response.setName(product.getName());
         response.setDescription(product.getDescription());
         response.setPrice(product.getPrice());
-        response.setCategoryId(product.getCategoryId().getId());
+        response.setCategoryId(product.getCategory().getId());
         response.setImageUrl(product.getImageUrl());
         response.setStockQuantity(product.getStockQuantity());
         response.setCreatedAt(product.getCreatedAt());

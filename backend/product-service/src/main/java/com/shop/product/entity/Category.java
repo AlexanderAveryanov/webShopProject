@@ -32,7 +32,7 @@ public class Category {
     // Связь с товарами. Каскада нет намеренно: удаление категории сервис делает сам,
     // сначала удаляя товары запросом deleteAllByCategoryId, а уже потом саму категорию.
     // Так поведение видно в коде, а не спрятано в БД, и его легко покрыть проверкой
-    @OneToMany(mappedBy = "categoryId", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Product> products = new ArrayList<>();
 
     @PrePersist // Перед первым сохранением объекта в БД

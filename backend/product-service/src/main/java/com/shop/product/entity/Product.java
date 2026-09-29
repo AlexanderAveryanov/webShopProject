@@ -25,11 +25,12 @@ public class Product {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price; // Цена товара
 
-    // Ссылка на категорию товара. Поле названо categoryId ради единообразия с запросом и
-    // колонкой category_id, хотя тип здесь - объект Category, а не число
+    // Ссылка на категорию товара. В БД это внешний ключ category_id, но в сущности он хранится
+    // как объект Category: так сохраняется связь между сущностями, а ленивая загрузка не тянет
+    // данные категории, пока к ним не обратились
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
-    private Category categoryId;
+    private Category category;
 
     // Размер поля в соответствии с миграцией Flyway.
     @Column(name = "image_url", length = 500)
