@@ -121,8 +121,8 @@ public class AuthService {
             throw new InvalidPasswordException();
         }
 
-        // 3. Генерируем JWT-токен
-        String token = jwtTokenProvider.generateToken(user.getId());
+        // 3. Генерируем JWT-токен (вместе с ролью пользователя, чтобы сервисы проверяли права по токену)
+        String token = jwtTokenProvider.generateToken(user);
 
         // 4. Формируем и возвращаем ответ
         return mapToAuthResponse(token, user);
