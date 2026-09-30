@@ -22,8 +22,7 @@ public class ProductResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    /** Идентификатор категории товара. Сама категория товару не отдается, чтобы не тянуть ее данные в ответ */
-    private Long categoryId;
+    private Long categoryId; /** Идентификатор категории товара. Сама категория товару не отдается, чтобы не тянуть ее данные в ответ */
     private String imageUrl;
     @Builder.Default
     private Integer stockQuantity = 0;

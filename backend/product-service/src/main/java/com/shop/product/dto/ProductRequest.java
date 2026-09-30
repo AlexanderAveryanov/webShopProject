@@ -22,8 +22,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductRequest {
-    // max = 100 -> 255: соответствует VARCHAR(255) в таблице products
     @NotBlank(message = "Необходимо заполнить обязательный атрибут 'Наименование'")
+    // max = 255 - соответствует VARCHAR(255) в таблице products
     @Size(max = 255, message = "Наименование товара не должно превышать 255 символов")
     private String name;
 
@@ -36,8 +36,7 @@ public class ProductRequest {
     @Digits(integer = 8, fraction = 2, message = "Цена должна содержать не более 8 цифр до запятой и не более 2 после")
     private BigDecimal price;
 
-    // categoryId - идентификатор категории товара (не сама сущность),
-    // чтобы клиенту не приходилось передавать вложенный объект категории
+    // categoryId - идентификатор категории товара, чтобы клиенту не приходилось передавать вложенный объект категории
     @NotNull(message = "Необходимо заполнить обязательный атрибут 'Идентификатор категории'")
     private Long categoryId;
 

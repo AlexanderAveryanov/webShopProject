@@ -130,9 +130,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class) // Ловит ошибки валидации (@Valid)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach(error -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
+        ex.getBindingResult() // возвращает объект BindingResult. Это «отчёт» о результатах валидации: какие поля не прошли, с какими сообщениями.
+                .getAllErrors() // возвращает List<ObjectError> — список всех ошибок (по одной на каждое нарушенное правило).
+                .forEach(error -> {
+            String fieldName = ((FieldError) error).getField(); // (FieldError) error - каст ObjectError к FieldError. getField() - получение имени поля, которое не прошло проверку
+            String errorMessage = error.getDefaultMessage(); // достаём сообщение об ошибке, которое задано в аннотации валидации в DTO
             errors.put(fieldName, errorMessage);
         });
         return handleException(HttpStatus.BAD_REQUEST, "Проверьте правильность заполнения полей", errors);

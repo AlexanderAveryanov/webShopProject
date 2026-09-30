@@ -144,8 +144,7 @@ public class ProductService {
         product.setPrice(request.getPrice());
         product.setImageUrl(request.getImageUrl());
         product.setStockQuantity(request.getStockQuantity());
-        // Категорию ищем заранее, чтобы несуществующая давала понятную ошибку 404,
-        // а не ошибку целостности от БД при попытке сохранить ссылку
+        // Категорию ищем заранее, чтобы несуществующая давала понятную ошибку 404, а не ошибку целостности от БД при попытке сохранить ссылку
         product.setCategory(findCategory(request.getCategoryId()));
     }
 
