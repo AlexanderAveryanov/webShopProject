@@ -41,15 +41,21 @@ import static org.mockito.Mockito.when;
  * <p>
  * {@link MockitoExtension} сам инициализирует {@code @Mock}-поля и внедряет их
  * в тестируемый объект, помеченный {@code @InjectMocks}.
+ * Тест может быть выполнен, не выполнен, с ошибкой (если не смог выполниться из-за неожиданного исключения)
  */
+// @ExtendWith(MockitoExtension.class) - входная точка для Mockito в JUnit 5. Без неё @Mock и @InjectMocks не будут работать.
+// Что делает:
+//  - Перед каждым тестом сканирует класс на поля с @Mock и создает для них загрушки.
+//  - Находит поле с @InjectMocks и внедряет в него созданные моки.
+//  - После каждого теста автоматически сбрасывает состояние моков (не нужно руками вызывать Mockito.reset())
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    /** Мок репозитория пользователей (вместо реального обращения к БД). */
-    @Mock
+    /** Мок репозитория пользователей */
+    @Mock // Создает фейковых объект (заглушку). Все методы этого объекта по умолчанию возвращают: null/0/false/пустую коллекцию
     private UserRepository userRepository;
 
-    /** Мок кодировщика паролей (BCrypt), чтобы не хешировать по-настоящему. */
+    /** Мок кодировщика паролей (BCrypt) */
     @Mock
     private PasswordEncoder passwordEncoder;
 
@@ -58,27 +64,37 @@ class AuthServiceTest {
     private JwtTokenProvider jwtTokenProvider;
 
     /** Тестируемый сервис; зависимости-моки внедряются Mockito автоматически. */
-    @InjectMocks
+    @InjectMocks // Создает экземпляр и передает созданные моки из класса теста (объекты с аннотацией @Mock)
     private AuthService authService;
 
     /**
-     * Успешная регистрация: email нормализуется, пароль хешируется, роль USER,
-     * а в ответе нет пароля.
+     * Проверка успешной регистрации пользователя.
+     * <p>
+     * <b>Что проверяем:</b>
+     * <ul>
+     *   <li>email нормализуется перед проверкой и сохранением;</li>
+     *   <li>возврат UserResponse при регистрации, пароль хешируется, роль - USER, пароль отсутствует</li>
+     *   <li>корректность отправленных данных в БД для сохранения</li>
+     * </ul>
+     * <p>
+     * <b>Ожидаемый результат:</b> пользователь создан, возвращен UserResponse с корректными полями.
      */
-    @Test
+    // Наименование методов принято: метод_ожидаемоеПоведение_условие
+    @Test // помечает метод как тестовый. JUnit 5 запустит его при прогоне
     void register_shouldCreateUserAndReturnUserResponse() {
-        // Arrange: email намеренно с пробелами и в разном регистре — проверяем нормализацию
+        // Подготовка данных
+        // Создаем объект request и наполняем его данными. Эмулируем, что к нам пришло.
         RegisterRequest request = new RegisterRequest();
-        request.setEmail(" Test@Example.COM ");
+        request.setEmail(" Test@Example.COM "); // email намеренно с пробелами и в разном регистре — проверяем нормализацию
         request.setPassword("password123");
         request.setFirstName("John");
         request.setLastName("Doe");
 
         // В БД email ещё не занят (сервис проверяет его уже в нормализованном виде)
-        when(userRepository.existsByEmail("test@example.com")).thenReturn(false);
+        when(userRepository.existsByEmail("test@example.com")).thenReturn(false); // когда кто-то вызовет existsByEmail... верни false
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
 
-        // То, что вернёт репозиторий после сохранения (с уже присвоенным id)
+        // Создание объекта User и наполнение его тестовыми данными, чтобы проверить правильность возвращаемого UserResponse
         User savedUser = new User();
         savedUser.setId(1L);
         savedUser.setEmail("test@example.com");
@@ -88,20 +104,19 @@ class AuthServiceTest {
         savedUser.setRole(Role.USER);
         savedUser.setCreatedAt(LocalDateTime.now());
         savedUser.setUpdatedAt(LocalDateTime.now());
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userRepository.save(any(User.class))).thenReturn(savedUser); // any(User.class) - любой объект типа User
 
-        // Act
+        // Действие: вызываем тестируемые действия
         UserResponse response = authService.register(request);
 
-        // Assert: ответ содержит данные пользователя без пароля
+        // Проверка правильности возвращаемого UserResponse при регистрации: ответ содержит данные пользователя без пароля
         assertThat(response.getId()).isEqualTo(1L);
         assertThat(response.getEmail()).isEqualTo("test@example.com");
         assertThat(response.getFirstName()).isEqualTo("John");
         assertThat(response.getLastName()).isEqualTo("Doe");
         assertThat(response.getRole()).isEqualTo(Role.USER);
 
-        // Дополнительно перехватываем объект, реально переданный в save(),
-        // и проверяем, что сервис сохранил нормализованный email и хеш пароля
+        // Дополнительная проверка результата: перехватываем объект, реально ПЕРЕДАННЫЙ в save(), и проверяем, что сервис сохранил нормализованный email и хеш пароля
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         User captured = captor.getValue();
@@ -113,8 +128,15 @@ class AuthServiceTest {
     }
 
     /**
-     * Регистрация существующего email: сервис выбрасывает
-     * {@link EmailAlreadyExistsException} и не пытается сохранять пользователя.
+     * Проверка регистрации с уже существующим email.
+     * <p>
+     * <b>Что проверяем:</b>
+     * <ul>
+     *   <li>сервис выбрасывает {@link EmailAlreadyExistsException};</li>
+     *   <li>сервис не вызывает save() — выходит раньше, чем доходит до сохранения.</li>
+     * </ul>
+     * <p>
+     * <b>Ожидаемый результат:</b> исключение выброшено, пользователь не сохранен.
      */
     @Test
     void register_shouldThrowWhenEmailAlreadyExists() {
@@ -125,10 +147,17 @@ class AuthServiceTest {
         // Предварительная проверка показала, что email занят
         when(userRepository.existsByEmail("test@example.com")).thenReturn(true);
 
-        assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(EmailAlreadyExistsException.class);
+        // Проверяем, что при вызове метода регистрации будет брошено исключение типа EmailAlreadyExistsException
+        assertThatThrownBy(() -> authService.register(request)) // assertThatThrownBy принимает лямбду (передаваемый метод) и если лямбда выбросила исключение, то оно ловится и оборачивается в объект ThrowableAssert
+                // Далее у этого объекта мы проверяем тип ошибки.
+                // Если лямбда не выбросила исключение, то assertThatThrownBy падает с AssertionError "Ожидалось, что код выбросит исключение, но он не выбросил". Тест заканчивается с ошибкой.
+                .isInstanceOf(EmailAlreadyExistsException.class); // Если тип совпадает, то тест проходит, иначе нет. Учитываются совместимости по типу.
 
         // save() не должен вызываться вовсе
+        // verify - метод Mockito, говорит "Проверь, что было вот такое взаимодействие с моком"
+        // never() - режим верификации, говорит, что ожидаемое кол-во вызовов 0 раз
+        // .save() - метод который проверяется. Mockito перехватывает все вызовы этого метода через прокси и записывает их в журнал
+        // Итого создается журнал вызовов репозитория (мока) и здесь проверяется были ли такие вызовы, и если да, то бросается исключение NeverWantedButInvoked подкласс AssertionError - тест заканчивается с ошибкой.
         verify(userRepository, never()).save(any(User.class));
     }
 
@@ -138,6 +167,7 @@ class AuthServiceTest {
      * превратить в {@link EmailAlreadyExistsException}.
      */
     @Test
+    // throws SQLException - объявление метода. Говорит компилятору, что метод может выбросить данное исключение и вызывающий должен быть готов к этому. Если может быть несколько разных исключений, они перечисляются через запятую
     void register_shouldThrowOnUniqueViolation23505() throws SQLException {
         RegisterRequest request = new RegisterRequest();
         request.setEmail("test@example.com");
