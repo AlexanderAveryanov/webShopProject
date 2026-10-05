@@ -37,19 +37,11 @@ import static org.mockito.Mockito.when;
  * в тестируемый объект, помеченный {@code @InjectMocks}.
  * Тест может быть выполнен, не выполнен, с ошибкой (если не смог выполниться из-за неожиданного исключения)
  */
-// @ExtendWith(MockitoExtension.class) - входная точка для Mockito в JUnit 6. Без неё @Mock и @InjectMocks не будут работать.
-// Что делает:
-//  - Перед каждым тестом сканирует класс на поля с @Mock и создает для них загрушки.
-//  - Находит поле с @InjectMocks и внедряет в него созданные моки.
-//  - После каждого теста автоматически сбрасывает состояние моков (не нужно руками вызывать Mockito.reset())
-//  - Включает строгий контроль: если заглушка объявлена через when(...), но не была использована,
-//    тест падает с UnnecessaryStubbingException. Это защищает от «мёртвых» заглушек,
-//    которые намекали на проверку, но ничего не проверяли.
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
     /** Мок репозитория товаров */
-    @Mock // Создает фейковый объект (заглушку). Все методы этого объекта по умолчанию возвращают: null/0/false/пустую коллекцию
+    @Mock
     private ProductRepository productRepository;
 
     /** Мок репозитория категорий. Нужен, чтобы не ходить в БД при проверке существования категории. */
@@ -57,7 +49,7 @@ class ProductServiceTest {
     private CategoryRepository categoryRepository;
 
     /** Тестируемый сервис; зависимости-моки внедряются Mockito автоматически. */
-    @InjectMocks // Создает экземпляр через конструктор и передает ему созданные моки (объекты с аннотацией @Mock)
+    @InjectMocks
     private ProductService productService;
 
     /**
@@ -104,8 +96,7 @@ class ProductServiceTest {
      * <p>
      * <b>Ожидаемый результат:</b> список из двух товаров с перенесёнными полями.
      */
-    // Наименование методов принято: метод_ожидаемоеПоведение_условие
-    @Test // помечает метод как тестовый. JUnit 6 запустит его при прогоне
+    @Test
     void getAll_shouldReturnAllWhenCategoryIdNull() {
         // Подготовка данных
         // Создаем два товара одной категории - так видно, что фильтр по категории не применялся
@@ -205,12 +196,8 @@ class ProductServiceTest {
     void getById_shouldThrowWhenNotFound() {
         // Пустой Optional - так репозиторий сообщает, что товара с таким id нет
         when(productRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // assertThatThrownBy принимает лямбду (передаваемый метод) и если лямбда выбросила исключение, то оно ловится и оборачивается в объект ThrowableAssert
-        // Далее у этого объекта мы проверяем тип ошибки.
-        // Если лямбда не выбросила исключение, то assertThatThrownBy падает с AssertionError "Ожидалось, что код выбросит исключение, но он не выбросил". Тест заканчивается с ошибкой.
         assertThatThrownBy(() -> productService.getById(99L))
-                .isInstanceOf(ProductNotFoundException.class); // Если тип совпадает, то тест проходит, иначе нет. Учитываются совместимости по типу.
+                .isInstanceOf(ProductNotFoundException.class);
     }
 
     /**
