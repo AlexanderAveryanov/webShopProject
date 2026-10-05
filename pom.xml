@@ -31,6 +31,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source> <!-- Версия исходного кода Java, которую поддерживает компилятор -->
         <maven.compiler.target>${java.version}</maven.compiler.target> <!-- Версия Java, в которую будет скомпилирован байткод -->
         <maven.compiler-plugin.version>3.15.0</maven.compiler-plugin.version> <!-- Версия плагина Maven -->
+        <maven-surefire-plugin.version>3.5.5</maven-surefire-plugin.version> <!-- Версия плагина запуска тестов. Подробности - в блоке maven-surefire-plugin ниже -->
         <!--
             Версия Lombok, используемая процессором аннотаций в maven-compiler-plugin.
             Соответствует версии, управляемой Spring Boot BOM (org.projectlombok:lombok),
@@ -113,6 +114,41 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!--
+                    maven-surefire-plugin — плагин запуска тестов в фазе test.
+
+                    Зачем он нам объявлен:
+                    Тесты в проекте написаны на JUnit Jupiter 6.0.3 (приходит транзитивно
+                    из spring-boot-starter-test). Если версию плагина не задать, Maven берёт
+                    из своего супер-POM версию 2.12.4 — она умеет запускать только JUnit 3 и 4.
+                    Движок JUnit 6 при этом молча игнорируется, и сборка рапортует
+                    "Tests run: 0": она зелёная, но ни один тест не выполнен.
+
+                    Почему версия 3.5.5:
+                    Ровно эту версию задаёт Spring Boot BOM 4.0.6 в своём pluginManagement
+                    (свойство maven-surefire-plugin.version). Мы сознательно берём её же,
+                    чтобы не расходиться с BOM и не ловить сюрпризы при обновлении Spring Boot.
+
+                    Почему версию приходится указывать явно, раз она есть в BOM:
+                    Импорт BOM в dependencyManagement переносит ТОЛЬКО раздел dependencyManagement.
+                    Раздел pluginManagement из BOM при импорте НЕ наследуется — это не родительский
+                    pom, а подключаемый счетчик версий зависимостей. Проверяется так:
+                    mvn help:effective-pom показывает для surefire версию 2.12.4, а не 3.5.5.
+                    Альтернатива была бы объявить spring-boot-starter-parent родителем и получить
+                    его pluginManagement целиком, но мы сознательно от него отказались (см. выше):
+                    это отдало бы под управление Spring Boot версии почти всех плагинов сборки.
+
+                    Почему достаточно только pluginManagement, без <build><plugins> в модулях:
+                    pluginManagement перекрывает версию плагина и для плагинов, которые Maven
+                    подключает сам по жизненному циклу. Поэтому в дочерних модулях surefire
+                    подключать не нужно - он и так отработает в фазе test.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
 
                 <!--
