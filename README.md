@@ -46,8 +46,9 @@
 | **Docker** | latest | Контейнеризация |
 | **Docker Compose** | latest | Оркестрация сервисов |
 | **Testcontainers** | 1.20+ | Интеграционные тесты |
-| **JUnit 5** | 5.10+ | Unit-тестирование |
+| **JUnit** | 6.x | Unit-тестирование |
 | **Mockito** | 5.x | Мокирование |
+| **AssertJ** | 3.27.7 | Проверки в тестах |
 | **GitHub Actions** | latest | CI/CD |
 
 ### Мониторинг и Observability
